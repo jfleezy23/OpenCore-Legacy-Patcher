@@ -33,11 +33,61 @@ class AMDNavi(BaseHardware):
         """
         Targeting AMD Navi GPUs with CPUs lacking AVX2.0
         """
-        return self._is_gpu_architecture_present(
-            gpu_architectures=[
-                device_probe.AMD.Archs.Navi
-            ]
-        ) and "AVX2" not in self._computer.cpu.leafs and self._dortania_internal_check() is True
+        return (
+            self._is_exact_experimental_target()
+            and self._has_exact_pre_avx2_cpu()
+            and self._dortania_internal_check() is True
+        )
+
+
+    def _has_exact_pre_avx2_cpu(self) -> bool:
+        """
+        Require the validated pre-AVX2 CPU profile and a successful leaf-7 probe.
+        """
+        if not isinstance(self._computer, device_probe.Computer):
+            return False
+
+        cpu = self._computer.cpu
+        if not isinstance(cpu, device_probe.CPU):
+            return False
+        if cpu.name != "Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz":
+            return False
+        if not isinstance(cpu.flags, list) or "AVX1.0" not in cpu.flags:
+            return False
+        if not isinstance(cpu.leafs, list) or not cpu.leafs:
+            return False
+
+        return "AVX2" not in cpu.leafs
+
+
+    def _is_exact_experimental_target(self) -> bool:
+        """
+        Restrict the experimental Navi path to the validated MacPro6,1 profile.
+        """
+        if not isinstance(self._computer, device_probe.Computer):
+            return False
+        if self._computer.real_model != "MacPro6,1":
+            return False
+        if self._xnu_major != 24 or self._os_build != "24G830":
+            return False
+        if not isinstance(self._computer.gpus, list):
+            return False
+
+        gpus = []
+        for gpu in self._computer.gpus:
+            if not isinstance(gpu, device_probe.GPU):
+                return False
+            if not gpu.class_code or gpu.class_code == 0xFFFFFFFF:
+                continue
+            if not isinstance(gpu.vendor_id, int) or not isinstance(gpu.device_id, int):
+                return False
+            gpus.append((gpu.vendor_id, gpu.device_id))
+
+        return sorted(gpus) == [
+            (0x1002, 0x6798),
+            (0x1002, 0x6798),
+            (0x1002, 0x731F),
+        ]
 
 
     def native_os(self) -> bool:
