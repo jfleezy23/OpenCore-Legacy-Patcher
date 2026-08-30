@@ -107,6 +107,20 @@ class TestAMDNaviExperimentalEligibility(unittest.TestCase):
                 with patch.object(detector, "_dortania_internal_check", return_value=True):
                     self.assertFalse(detector.present())
 
+    def test_present_rejects_missing_or_partial_computer_gpu_state(self):
+        cases = {
+            "computer not probed": lambda detector: setattr(detector, "_computer", None),
+            "GPU list not probed": lambda detector: setattr(detector._computer, "gpus", None),
+            "partial GPU entry": lambda detector: setattr(detector._computer, "gpus", [None]),
+        }
+
+        for name, mutate in cases.items():
+            with self.subTest(name=name):
+                detector = navi_detector()
+                mutate(detector)
+                with patch.object(detector, "_dortania_internal_check", return_value=True):
+                    self.assertFalse(detector.present())
+
     def test_present_ignores_missing_and_placeholder_gpu_entries(self):
         detector = navi_detector(gpus=[
             amd(0x6798),

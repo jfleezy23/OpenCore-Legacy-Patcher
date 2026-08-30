@@ -44,8 +44,11 @@ class AMDNavi(BaseHardware):
         """
         Require the validated pre-AVX2 CPU profile and a successful leaf-7 probe.
         """
+        if not isinstance(self._computer, device_probe.Computer):
+            return False
+
         cpu = self._computer.cpu
-        if cpu is None:
+        if not isinstance(cpu, device_probe.CPU):
             return False
         if cpu.name != "Intel(R) Xeon(R) CPU E5-2697 v2 @ 2.70GHz":
             return False
@@ -61,13 +64,19 @@ class AMDNavi(BaseHardware):
         """
         Restrict the experimental Navi path to the validated MacPro6,1 profile.
         """
+        if not isinstance(self._computer, device_probe.Computer):
+            return False
         if self._computer.real_model != "MacPro6,1":
             return False
         if self._xnu_major != 24 or self._os_build != "24G830":
             return False
+        if not isinstance(self._computer.gpus, list):
+            return False
 
         gpus = []
         for gpu in self._computer.gpus:
+            if not isinstance(gpu, device_probe.GPU):
+                return False
             if not gpu.class_code or gpu.class_code == 0xFFFFFFFF:
                 continue
             if not isinstance(gpu.vendor_id, int) or not isinstance(gpu.device_id, int):
