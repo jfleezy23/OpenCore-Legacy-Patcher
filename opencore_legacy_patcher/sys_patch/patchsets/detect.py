@@ -29,6 +29,7 @@ from .hardware.graphics import (
     amd_terascale_1,
     amd_terascale_2,
     amd_legacy_gcn,
+    amd_navi,
     amd_polaris,
     amd_vega,
 )
@@ -121,6 +122,7 @@ class HardwarePatchsetDetection:
             amd_terascale_1.AMDTeraScale1,
             amd_terascale_2.AMDTeraScale2,
             amd_legacy_gcn.AMDLegacyGCN,
+            amd_navi.AMDNavi,
             amd_polaris.AMDPolaris,
             amd_vega.AMDVega,
 

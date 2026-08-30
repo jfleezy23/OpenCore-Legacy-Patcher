@@ -33,11 +33,33 @@ class AMDNavi(BaseHardware):
         """
         Targeting AMD Navi GPUs with CPUs lacking AVX2.0
         """
-        return self._is_gpu_architecture_present(
-            gpu_architectures=[
-                device_probe.AMD.Archs.Navi
-            ]
-        ) and "AVX2" not in self._computer.cpu.leafs and self._dortania_internal_check() is True
+        return (
+            self._is_exact_experimental_target()
+            and "AVX2" not in self._computer.cpu.leafs
+            and self._dortania_internal_check() is True
+        )
+
+
+    def _is_exact_experimental_target(self) -> bool:
+        """
+        Restrict the experimental Navi path to the validated MacPro6,1 profile.
+        """
+        if self._computer.real_model != "MacPro6,1":
+            return False
+        if self._xnu_major != 24 or self._os_build != "24G830":
+            return False
+
+        gpus = []
+        for gpu in self._computer.gpus:
+            if not gpu.class_code or gpu.class_code == 0xFFFFFFFF:
+                continue
+            gpus.append((gpu.vendor_id, gpu.device_id))
+
+        return sorted(gpus) == [
+            (0x1002, 0x6798),
+            (0x1002, 0x6798),
+            (0x1002, 0x731F),
+        ]
 
 
     def native_os(self) -> bool:
