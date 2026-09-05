@@ -1,12 +1,12 @@
 // CPU-only regression tests. The real implementation is included to exercise
 // its static retainedVersion function without exposing a production test API.
 // Build: clang -arch x86_64 -mmacosx-version-min=14.5 -fobjc-arc -fmodules
-// -Wall -Wextra -Werror -Isrc tests/texture_abi_lifetime_tests.m
-// src/texture_descriptor_abi.c -framework Foundation -framework Metal -o /tmp/...
+// -Wall -Wextra -Werror -Ifix tests/texture_abi_lifetime_tests.m
+// fix/texture_descriptor_abi.c -framework Foundation -framework Metal -o /tmp/...
 // Run with: env -u NAVI_TEXTURE_ABI_LAB -u NAVI_TEXTURE_ABI_TRACE
 // -u DYLD_INSERT_LIBRARIES /tmp/.../texture_abi_lifetime_tests
 #ifndef TEXTURE_ABI_LIFETIME_IMPLEMENTATION
-#define TEXTURE_ABI_LIFETIME_IMPLEMENTATION "../tools/texture_descriptor_abi_lab.m"
+#define TEXTURE_ABI_LIFETIME_IMPLEMENTATION "../fix/texture_descriptor_abi_lab.m"
 #endif
 #include TEXTURE_ABI_LIFETIME_IMPLEMENTATION
 #include <signal.h>

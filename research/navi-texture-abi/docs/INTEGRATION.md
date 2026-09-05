@@ -79,11 +79,15 @@ merely to make an unsupported test proceed.
 
 ## Building the scoped root prototype
 
+The three implementation files are in [fix/](../fix/); no files from
+`tests/` are required. From the package directory:
+
 ```sh
-make root-prototype
+make
 ```
 
-This builds and ad-hoc signs `build/NaviTextureABI.dylib`; it does not load or
+`make root-prototype` remains an equivalent explicit target. This builds and
+ad-hoc signs `build/NaviTextureABI.dylib`; it does not load or
 install it. The root variant activates without process environment settings
 when loaded through the driver dependency chain. Its IOSurface reexport
 supports the packaging used in the local experiment: an existing compatible

@@ -7,10 +7,11 @@ implementation, inspection and review. This is not an official Dortania
 release or an endorsement by upstream maintainers.
 
 This is a source-only extraction from a larger local experiment. Core source
-files are preserved unchanged; a standalone Makefile and these publication
-notes were added. Historical experiments, machine-specific deployment scripts,
-Apple driver/framework binaries and the private working repository's history
-are excluded.
+files are preserved unchanged in `fix/`; a standalone Makefile and these
+publication notes were added. Tests live separately in `tests/`, with their
+implementation include path updated for this layout. Historical experiments,
+machine-specific deployment scripts, Apple driver/framework binaries and the
+private working repository's history are excluded.
 
 The reproduction's load/resolve geometry and semantics were informed by Skia
 Graphite and a local rendering capture. Its shaders are independently

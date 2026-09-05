@@ -6,6 +6,18 @@ MacPro6,1 running Sequoia with a modified Monterey-derived Navi driver stack.
 **This builds on OCLP's unfinished Navi work; it is not official OCLP support,
 a new AMD driver, or a general-purpose installer.**
 
+## Start here: the fix is three files
+
+The implementation is entirely in [fix/](fix/):
+
+- [texture_descriptor_abi.c](fix/texture_descriptor_abi.c): descriptor translation.
+- [texture_descriptor_abi.h](fix/texture_descriptor_abi.h): layout sizes and declarations.
+- [texture_descriptor_abi_lab.m](fix/texture_descriptor_abi_lab.m): scoped driver bridge and translation-storage lifetime.
+
+[tests/](tests/) contains optional regression tests and the standalone
+reproduction. None of those files is required to build or integrate the fix.
+[docs/](docs/) contains supporting evidence and integration notes.
+
 ## How this connects to OCLP
 
 OCLP's [AMD Navi reference patchset](../../opencore_legacy_patcher/sys_patch/patchsets/hardware/graphics/amd_navi.py)
@@ -41,8 +53,8 @@ memcpy(destination, source, 0xa8);
 memcpy(destination + 0xa8, source + 0xb0, 24);
 ```
 
-The [pure translator](src/texture_descriptor_abi.c) leaves the current Metal
-object unchanged. The [bridge](tools/texture_descriptor_abi_lab.m) adds caller,
+The [pure translator](fix/texture_descriptor_abi.c) leaves the current Metal
+object unchanged. The [bridge](fix/texture_descriptor_abi_lab.m) adds caller,
 class/layout, ownership and matrix gates plus retained translation storage.
 
 The 192-byte layout is **not a universal Monterey ABI**. An independently
@@ -68,7 +80,7 @@ See [evidence and limitations](docs/EVIDENCE.md) and
 [integration details](docs/INTEGRATION.md). MacPro5,1 and other donor/OS
 combinations have not been validated here.
 
-## Build and CPU tests
+## Build the fix
 
 Requires macOS with Xcode Command Line Tools and a macOS 15-or-newer SDK.
 Targets are x86_64. On Apple silicon, running these binaries requires Rosetta.
@@ -76,7 +88,20 @@ From this directory:
 
 ```sh
 make
+```
+
+This builds only `build/NaviTextureABI.dylib`, the scoped root prototype.
+It does not compile tests, load the library, install anything or modify an EFI.
+See [integration requirements](docs/INTEGRATION.md) before using it with a driver
+payload; it is not a drop-in fix for a stock installation.
+
+## Optional tests and diagnostics
+
+These are separate from the fix:
+
+```sh
 make test
+make diagnostics
 build/msaa_rectangle_minimal --describe
 build/texture_validation_order_tests --describe
 ```
@@ -84,6 +109,10 @@ build/texture_validation_order_tests --describe
 `make test` runs translation checks, five CPU-only lifetime groups and the
 image-comparator self-test. It does not initialize a GPU or install the hook.
 The source checks are not a substitute for actual donor/GPU tests.
+
+`make diagnostics` builds the process-opt-in diagnostic variant and GPU
+reproduction tools; it does not run them. That variant is not a replacement
+for the scoped root prototype built by `make`.
 
 The [standalone reproduction](tests/msaa_rectangle_minimal.m) needs no Chrome
 assets. GPU execution is opt-in through `--run --out NEW_ABSOLUTE_DIRECTORY
