@@ -1,0 +1,9 @@
+build/
+.DS_Store
+*.dylib
+*.o
+*.bgra
+*.log
+*.jsonl
+*.gputrace
+profiles/
