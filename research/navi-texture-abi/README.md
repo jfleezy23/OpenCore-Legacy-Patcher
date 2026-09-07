@@ -32,6 +32,24 @@ repeatable red dots/streaks. Correcting the descriptor layout removed the
 established reproduction. Merely enabling the reference patchset's detection
 gate does not implement this correction.
 
+## Companion kext: NaviAGDCCompat
+
+[NaviAGDCCompat](https://github.com/jfleezy23/NaviAGDCCompat) provides the companion
+AGDC compatibility kext used with this Monterey-derived Navi stack. The kext
+enables the Navi display path, but by itself leaves the observed red artifacts
+and Electron rendering issues. This texture ABI correction addresses that
+separate userspace Metal incompatibility.
+
+The maintainer reports that **the kext and ABI correction together resolve
+those red artifacts and Electron issues** on the tested MacPro6,1 / RX 5700 XT /
+Sequoia `24G830` setup. The measured Chrome and synthetic results below provide
+separate evidence; they are not a test matrix for every Electron application.
+
+The descriptor correction may also benefit other GPU donor paths that share
+the same layout mismatch. Those paths have not been validated, and the current
+bridge is scoped to Navi. Neither this potential nor the working MacPro6,1
+result establishes MacPro5,1 compatibility.
+
 ## The defect and the small part of the fix
 
 Current Metal's `MTLTextureDescriptorInternal::descriptorPrivate` returns a
